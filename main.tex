@@ -150,28 +150,15 @@ En la Fig. \ref{Fig_Esquema} se muestra el esquema de proceso. La configuración
 			}
 			\draw (2,2) node[atmega](A6){}
 			(A6.lpin 1) node[above left, red]{PB-ADC0}-- ++ (-.5,0) ;
-			;
 			\draw (A6.brpin 1) coordinate(x1) ++ (.7,0) node (x2){};
 			\node[above right of=x1]{SER-PC};
-			\ctikztunablearrow[-{Stealth[inset=0pt,width=17,length=20]}]{20}{4}{1}{x2};
+			\ctikztunablearrow[-{Stealth[inset=0pt,width=17,length=20]}]{20}{4}{1}{x2}
 			\draw[dash pattern=on 2pt off 1.5pt, rounded corners=10pt] (-1.7,-1) rectangle(5.5,5);
 		\end{circuitikz}
 	\end{subfigure}
-
-% \tikzset{tdax/.style={muxdemux,
-% muxdemux def={NL=2, Lh=3.5, NR=1, Rh=0,
-% NB=2, NT=5}, font=\scriptsize\ttfamily}}
-% \begin{circuitikz}
-% \draw (0,0) node[tdax](A){TDA1};
-% \draw (2.5,0) node[tdax, muxdemux def={Rh=0.5},
-% draw only top pins={1,4-5}]{TDA2};
-% \end{circuitikz}
-
-
-	\caption{}
+	\caption{Modelo del circuito}
 	\label{fig:}
 \end{figure}
-
 
 \bibliography{refs} % Vincular a refs.bib
 
