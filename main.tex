@@ -4,11 +4,15 @@
 \usepackage[utf8]{inputenc} % Permitir caracteres especiales como acentos y ñ
 \usepackage[T1]{fontenc}    % Mejor codificación para caracteres en español
 \usepackage{authblk} % Paquete para filiaciones institucionales
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{subcaption}
 \usepackage{geometry} % Paquete para configurar márgenes
 \usepackage{multicol} % Paquete para columnas múltiples
 \usepackage{graphicx} % Paquete para incluir imágenes
 \usepackage{lipsum}   % Paquete para texto de ejemplo
 \usepackage[numbers]{natbib} % Paquete para citas bibliográficas
+\usepackage[american]{circuitikz}
 
 % Configuración de márgenes
 \geometry{
@@ -56,16 +60,118 @@ En la Fig. \ref{Fig_Esquema} se muestra el esquema de proceso. La configuración
 
 \end{multicols}
 \begin{figure}[ht]
-\centering
-\includegraphics[width=\textwidth]{Imags/Esquema.eps} 
-\caption{Esquema del prototipo.}
-\label{Fig_Esquema}
+	\centering
+	\includegraphics[width=\textwidth]{img/Esquema.eps} 
+	\caption{Esquema del prototipo.}
+	\label{Fig_Esquema}
 \end{figure}
 \begin{multicols}{2}
 
 \lipsum[2-3] % Más texto de ejemplo
 
 \end{multicols}
+
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{0.47\textwidth}
+		\begin{circuitikz}
+			\draw (1,2) node[above right]{BD} to[short,o-] (2,2) node[inst amp ra, label=center:INA128, noinv input up,anchor=-](A1){} node[above right]{3} 
+				(A1.+) node[above right]{2} to[short,-o,]  (A1.+ -| 1,2) node[above right]{BI}
+				(A1.out) node[above left]{6} -- ++ (.25,0) node[red,below]{AI-PA}
+				(A1.ra+) node[above right]{8} -- ++(-.3,0) node(x){} to[R,l2_=$R_1$ and \SI{5}{\kilo\ohm}] (x|- A1.ra-) -- (A1.ra-) node[above right]{1}
+				(A1.up)  node[above right]{7} -- ++(0,1) node[vcc]{+\SI{5}{\volt}}
+				(A1.down)node[below right]{4} -- ++(0,-.7) node[vee]{\SI{-5}{\volt}}
+				(A1.refv up)node[above right]{5} to[short,-o] ++ (0,.6) node[right]{V$_\text{REF}$} ;
+
+			\draw  (A1.down) ++ (0,-.5) to [short,*-] ++ (1.5,0) to[C,l2=$C_1$ and \SI{100}{\nano\farad}] ++ (0,-1) node[tlground]{};
+			\draw  (A1.up) ++ (0,.7) to [short,*-] ++ (2.7,0) to[C,l2=$C_2$ and \SI{100}{\nano\farad}] ++ (0,-1) node[tlground]{};
+			\draw (1,1) node[ground]{} to[short, -o, l_={PD$_\text{REF}$}] (1,1);
+
+			\draw[dash pattern=on 2pt off 1.5pt,rounded corners=10pt] (0,-.7)rectangle(8,8.25);
+			\node (x) at (4,6.7){};
+			\node[above of=x]{AMPLIFICADOR DE INSTRUMENTACIÓN};
+		\end{circuitikz}
+	\end{subfigure}
+	\vspace{.15cm};
+	\begin{subfigure}{0.49\textwidth}
+		\begin{circuitikz}
+			\draw (2,2) node[red,below]{AI-PA} to[C,l=\ \ \ $C_3$\ \ \SI{10}{\micro\farad},-*,l2 valign=b] (4,2) to[R,l2_=$R_2$ and \SI{1}{\kilo\ohm}] ++ (0,-2.3) node[tlground](GND){}; 
+			\draw (4,2) to ++ (1,0) node[op amp,noinv input up, anchor=+](A2){TL084};
+			\draw (A2.-) -- (A2.- |- GND) -- (GND -| A2.out) -- (A2.out) to [short, *-] ++ (.3,0) node[red,above]{PA-PB};
+			\draw[dash pattern=on 2pt off 1.5pt, rounded corners=10pt] (1.3,-.7) rectangle (8.3,3.8);
+			\node at(5,3.4) {FILTRO PASA-ALTOS};
+		\end{circuitikz}
+		\vspace{.25cm};
+		\begin{circuitikz}
+			\draw (2,2) node[red,below]{AI-PA} to[R,l=\ $R_3$\ \ \SI{1}{\kilo\ohm},-*,l2 valign=b] (4,2) to[R,l2_=$R_4$ and \SI{1}{\kilo\ohm}] ++ (0,-2) node[tlground](GND){};
+			\draw (4,2) to ++ (1,0) node[op amp,noinv input up, anchor=+](A2){TL084};
+			\draw (A2.-) -- (A2.- |- GND) -- (GND -| A2.out) -- (A2.out) to [short, *-] ++ (.3,0) node[red,above]{PA-PB};
+			\draw[dash pattern=on 2pt off 1.5pt, rounded corners=10pt] (1.3,-.7) rectangle (8.3,3.5);
+			\node at(5,3.2) {ALIMENTACIÓN};
+		\end{circuitikz}
+	\end{subfigure}
+	\vspace{.15cm}
+	\begin{subfigure}{\textwidth}
+		\begin{circuitikz}
+			\draw (7,3) node[op amp, noinv input up](A4){TL084}
+			(A4.-) -- ++(-.25,0) -- ++ (0,-.5) coordinate(x) to [R,l_=$R_6$] ++ (0,-2.5) node[tlground]{}
+			(A4.+) -- ++(-1.8,0) coordinate(aux) to[C]  ++ (0,-4) node[tlground]{}
+			(A4.out) ++ (-6,0) node[below,red]{PA-PB} to[R,l=$R_5$] (aux |- A4.out);
+			\draw (x) ++ (0,-.35) coordinate(x) to[R,l_=$R_7$] (A4.out |- x) -- (A4.out);
+
+
+			\draw (14,3) node[op amp, noinv input up](A5){TL084}
+			(A5.-) -- ++(-.25,0) -- ++ (0,-.5) coordinate(x) to [R,l_=$R_{10}$] ++ (0,-2.5) node[tlground]{}
+			(A5.+) -- ++(-1.8,0) coordinate(aux) to[R,l_=$R_9$]  ++ (0,-4) node[tlground]{}
+			(A4.out) to[R,l=$R_8$,*-*] (aux |- A5.out);
+			\draw (x) ++ (0,-.35) coordinate(x) to[R,l_=$R_{11}$] (A5.out |- x) -- (A5.out) to[short,*-] ++(.5,0) node[red,above]{PB-ADC0};
+			\node(x) at(9.1,3.5){};
+			\node[above of=x] {FILTRO PASA-BAJOS};
+
+			\draw[dash pattern=on 2pt off 1.5pt, rounded corners=10pt] (1.5,-1) rectangle (16.7,5);
+		\end{circuitikz}
+	\end{subfigure}
+	
+	\begin{subfigure}{\textwidth}
+		\begin{circuitikz}
+			\draw[dash pattern=on 2pt off 1.5pt, rounded corners=10pt] (0,0) rectangle (8,6);
+			\node at(3.5,5){GIRÓSCOPO ACELERÓMETRO};
+		\end{circuitikz}
+		\begin{circuitikz}
+			\ctikzset{muxdemux/border label
+		  	font={\small}}
+			\ctikzset{muxdemux/inner label
+		  	font={\small}}
+			\tikzset{atmega/.style={muxdemux,
+					muxdemux def={Lh=7.5, Rh=7.5, w=5,
+					NR=1, NL=2, NB=0, NT=0},
+					muxdemux label={L1=A0,N=ATMEGA328PU}
+				}
+			}
+			\draw (2,2) node[atmega](A6){}
+			(A6.lpin 1) node[above left, red]{PB-ADC0}-- ++ (-.5,0) ;
+			;
+			\draw (A6.brpin 1) coordinate(x1) ++ (.7,0) node (x2){};
+			\node[above right of=x1]{SER-PC};
+			\ctikztunablearrow[-{Stealth[inset=0pt,width=17,length=20]}]{20}{4}{1}{x2};
+			\draw[dash pattern=on 2pt off 1.5pt, rounded corners=10pt] (-1.7,-1) rectangle(5.5,5);
+		\end{circuitikz}
+	\end{subfigure}
+
+% \tikzset{tdax/.style={muxdemux,
+% muxdemux def={NL=2, Lh=3.5, NR=1, Rh=0,
+% NB=2, NT=5}, font=\scriptsize\ttfamily}}
+% \begin{circuitikz}
+% \draw (0,0) node[tdax](A){TDA1};
+% \draw (2.5,0) node[tdax, muxdemux def={Rh=0.5},
+% draw only top pins={1,4-5}]{TDA2};
+% \end{circuitikz}
+
+
+	\caption{}
+	\label{fig:}
+\end{figure}
+
 
 \bibliography{refs} % Vincular a refs.bib
 
